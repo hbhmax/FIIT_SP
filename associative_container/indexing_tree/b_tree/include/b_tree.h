@@ -72,7 +72,7 @@ private:
     void insert_bottom_up(btree_node* node, tree_data_type data);
 
     size_t find_key_index(btree_node* node, const tkey& key);
-    size_t upper_bound_key_index(btree_node* node, const tkey& tkey);
+    size_t upper_bound_key_index(btree_node* node, const tkey& key);
     tree_data_type& get_min_key(btree_node* node);
     tree_data_type& get_max_key(btree_node* node);
 
@@ -600,7 +600,7 @@ void B_tree<tkey, tvalue, compare, t>::increment_iterator(std::stack<std::pair<n
 
 template<typename tkey, typename tvalue, comparator<tkey> compare, std::size_t t>
 template<typename node_ptr_ptr>
-static void B_tree<tkey, tvalue, compare, t>::decrement_iterator(std::stack<std::pair<node_ptr_ptr, size_t>>& path,
+void B_tree<tkey, tvalue, compare, t>::decrement_iterator(std::stack<std::pair<node_ptr_ptr, size_t>>& path,
     size_t& index)
 {
     if (path.empty())
@@ -657,7 +657,7 @@ static void B_tree<tkey, tvalue, compare, t>::decrement_iterator(std::stack<std:
 
 template<typename tkey, typename tvalue, comparator<tkey> compare, std::size_t t>
 template<typename node_ptr_ptr>
-static bool B_tree<tkey, tvalue, compare, t>::iterators_are_equal(const std::stack<std::pair<node_ptr_ptr, size_t>>& path,
+bool B_tree<tkey, tvalue, compare, t>::iterators_are_equal(const std::stack<std::pair<node_ptr_ptr, size_t>>& path,
     const size_t& index, const std::stack<std::pair<node_ptr_ptr, size_t>>& other_path,
     const size_t& other_index)
 {
