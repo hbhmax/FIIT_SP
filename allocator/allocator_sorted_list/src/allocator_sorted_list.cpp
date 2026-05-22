@@ -7,6 +7,12 @@
 
 namespace
 {
+    // -----------------------------------------------------------вспомогательные----------------------------------------------------------------------
+    
+    /*
+        Приводит указатель к char* для байтовой арифметики -----------------------
+    */
+    
     inline char* bytes(void* p) noexcept
     {
         return static_cast<char*>(p);
@@ -16,6 +22,10 @@ namespace
     {
         return static_cast<const char*>(p);
     }
+
+    /*
+        Доступ к метаданным аллокатора ------------------------------------------
+    */
 
     inline std::pmr::memory_resource*& parent_allocator_ref(void* trusted) {
         return *reinterpret_cast<std::pmr::memory_resource**>(trusted);
@@ -85,6 +95,10 @@ namespace
             + sizeof(std::mutex));
     }
 
+    /*
+        Доступ к метаданным блока ------------------------------------------------
+    */
+
     inline void*& next_free_or_memory_begin_ref(void* block) noexcept
     {
         return *reinterpret_cast<void**>(block);
@@ -106,6 +120,10 @@ namespace
         return *reinterpret_cast<const size_t*>(bytes(block) + sizeof(void*));
     }
 
+    /*
+        Константы ---------------------------------------------------------------
+    */
+
     constexpr const size_t allocator_metadata_size = 
         sizeof(std::pmr::memory_resource*) 
         + sizeof(allocator_with_fit_mode::fit_mode) 
@@ -115,6 +133,11 @@ namespace
 
     constexpr const size_t block_metadata_size = sizeof(void*) + sizeof(size_t);
 
+    /*
+        Границы ----------------------------------------------------------------
+    */
+
+    // Указатель на начало первого физического блока (сразу после метаданных аллокатора)
     inline char* first_block_ptr(void* trusted) noexcept
     {
         return bytes(trusted) + allocator_metadata_size;
@@ -125,6 +148,7 @@ namespace
         return bytes(trusted) + allocator_metadata_size;
     }
 
+    // Указатель на конец доверенной области (за последним байтом пользовательских данных)
     inline char* memory_end_ptr(void* trusted)
     {
         return first_block_ptr(trusted) + total_space_ref(trusted);
@@ -135,6 +159,7 @@ namespace
         return first_block_ptr(trusted) + total_space_ref(trusted);
     }
 
+    // Указатель на начало пользовательских данных (после заголовка блока)
     inline char* user_memory_ptr(void* block) {
         return bytes(block) + block_metadata_size;
     }
@@ -143,6 +168,7 @@ namespace
         return bytes(block) + block_metadata_size;
     }
 
+    //  Указатель на следующий физический блок (пропуская метаданные текущего и его данные)
     inline char* next_physical_block(void* block) {
         return bytes(block)
             + block_metadata_size
@@ -155,6 +181,7 @@ namespace
             + block_size_ref(block);
     }
 
+    // Вставить блок в односвязный список свободных блоков, порядок по возрастанию адресов
     inline void insert_into_free_list_sorted(void* trusted, void* block) noexcept
     {
         void*& head = first_free_ref(trusted);
@@ -177,6 +204,7 @@ namespace
         next_free_or_memory_begin_ref(prev) = block;
     }
 
+    // После добавления блока в список свободных объединить его с соседними свободными блоками
     inline void merge_with_neighbours(void* trusted, void* block)
     {
         void* prev = nullptr;
@@ -205,6 +233,7 @@ namespace
         }
     }
 
+    // Проверить, находится ли блок в списке свободных
     inline bool is_free_block(void* trusted, void* block)
     {
         void* cur = first_free_ref(trusted);
@@ -217,6 +246,8 @@ namespace
         return false;
     }
 }
+
+//---------------------------------------------------------------------------основные-------------------------------------------------------------------------
 
 allocator_sorted_list::~allocator_sorted_list()
 {

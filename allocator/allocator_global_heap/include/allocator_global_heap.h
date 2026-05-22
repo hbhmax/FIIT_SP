@@ -4,9 +4,7 @@
 #include <allocator_dbg_helper.h>
 #include <pp_allocator.h>
 
-class allocator_global_heap final:
-    private allocator_dbg_helper,
-    public smart_mem_resource
+class allocator_global_heap final: private allocator_dbg_helper, public smart_mem_resource
 {
 
 private:
@@ -19,25 +17,19 @@ public:
     
     ~allocator_global_heap() override;
     
-    allocator_global_heap(
-        allocator_global_heap const &other);
+    allocator_global_heap(allocator_global_heap const &other);
     
-    allocator_global_heap &operator=(
-        allocator_global_heap const &other);
+    allocator_global_heap &operator=(allocator_global_heap const &other);
     
-    allocator_global_heap(
-        allocator_global_heap &&other) noexcept;
+    allocator_global_heap(allocator_global_heap &&other) noexcept;
     
-    allocator_global_heap &operator=(
-        allocator_global_heap &&other) noexcept;
+    allocator_global_heap &operator=(allocator_global_heap &&other) noexcept;
 
 private:
     
-    [[nodiscard]] void *do_allocate_sm(
-        size_t size) override;
+    [[nodiscard]] void *do_allocate_sm(size_t size) override;
     
-    void do_deallocate_sm(
-        void *at) override;
+    void do_deallocate_sm(void *at) override;
 
     bool do_is_equal(const std::pmr::memory_resource& other) const noexcept override;
 

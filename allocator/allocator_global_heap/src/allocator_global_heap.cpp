@@ -33,6 +33,12 @@ allocator_global_heap::allocator_global_heap(const allocator_global_heap& other)
 
 allocator_global_heap& allocator_global_heap::operator=(const allocator_global_heap& other) = default;
 
+/*
+do_is_equal должна возвращать true, если два ресурса можно использовать взаимозаменяемо.
+Если other указывает на объект типа allocator_global_heap, dynamic_cast возвращает корректный указатель на этот производный класс.
+Если other указывает на объект другого типа, dynamic_cast возвращает nullptr
+Выражение dynamic_cast<...>(&other) возвращает true, если other является allocator_global_heap, те взаимозаменяемый
+*/  
 bool allocator_global_heap::do_is_equal(const std::pmr::memory_resource& other) const noexcept
 {
     return dynamic_cast<const allocator_global_heap*>(&other);

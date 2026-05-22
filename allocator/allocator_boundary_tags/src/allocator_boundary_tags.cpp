@@ -218,9 +218,6 @@ allocator_boundary_tags &allocator_boundary_tags::operator=(
     return *this;
 }
 
-
-/** If parent_allocator* == nullptr you should use std::pmr::get_default_resource()
- */
 allocator_boundary_tags::allocator_boundary_tags(
         size_t space_size,
         std::pmr::memory_resource *parent_allocator,
